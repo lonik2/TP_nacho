@@ -15,7 +15,6 @@ class ReproductorMusical:
         self.root.title("Reproductor de Música - Proyecto Final")
         self.root.geometry("600x500")
         
-        # Inicializar Pygame Mixer para el audio
         pygame.mixer.init()
         
         self.lista_canciones = []
