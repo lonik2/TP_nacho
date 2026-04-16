@@ -23,7 +23,12 @@ class ReproductorMusical:
         self.modo_repetir = False
         self.reproduciendo = False
         
+        self.archivo_auto_guardado = "ultima_sesion.json"
+
         self.crear_interfaz()
+
+        self.cargar_sesion_automatica()
+
         self.actualizar_barra_progreso()
 
     def crear_interfaz(self):
@@ -69,7 +74,7 @@ class ReproductorMusical:
         tk.Button(frame_controles, text="⏮ Anterior", command=self.anterior).pack(side="left", padx=5)
         tk.Button(frame_controles, text="▶ Play", command=self.reproducir).pack(side="left", padx=5)
         tk.Button(frame_controles, text="⏸ Pausa", command=self.pausar).pack(side="left", padx=5)
-        tk.Button(frame_controles, text="⏹ Stop", command=self.parar).pack(side="left", padx=5)
+        tk.Button(frame_controles, text="⏹ Stop", command=self.stop).pack(side="left", padx=5)
         tk.Button(frame_controles, text="⏭ Siguiente", command=self.siguiente).pack(side="left", padx=5)
 
         frame_extras = tk.Frame(frame_inferior)
@@ -83,8 +88,24 @@ class ReproductorMusical:
         
         tk.Label(frame_extras, text="Volumen:").pack(side="left", padx=5)
         self.slider_volumen = ttk.Scale(frame_extras, from_=0, to=1, orient="horizontal", command=self.cambiar_volumen)
-        self.slider_volumen.set(0.5) # Volumen a la mitad por defecto
+        self.slider_volumen.set(0.5)
         self.slider_volumen.pack(side="left")
+    
+    def agregar_archivos(self):
+        archivos = filedialog.askopenfilenames(filetypes=[("Archivos MP3", "*.mp3")])
+        if archivos:
+            for ruta in archivos:
+                info = self.extraer_metadatos(ruta)
+                self.lista_canciones.append(info)
+                self.listbox.insert(tk.END, f"{info['artista']} - {info['titulo']}")
+
+            self.guardar_sesion_automatica()
+
+    def limpiar_lista(self):
+        self.lista_canciones.clear()
+        self.listbox.delete(0, tk.END)
+        pygame.mixer.music.stop()
+        self.guardar_sesion_automatica()
 
     def cargar_carpeta(self):
         carpeta = filedialog.askdirectory()
@@ -101,6 +122,8 @@ class ReproductorMusical:
                 self.lista_canciones.append(info)
                 texto_lista = f"{info['artista']} - {info['titulo']}"
                 self.listbox.insert(tk.END, texto_lista)
+
+        self.guardar_sesion_automatica()
 
     def extraer_metadatos(self, ruta):
         info = {
@@ -127,6 +150,12 @@ class ReproductorMusical:
             
         return info
 
+    def seleccionar_cancion(self, event):
+        seleccion = self.listbox.curselection()
+        if seleccion:
+            self.indice_actual = seleccion[0]
+            self.reproducir()
+
     def reproducir(self):
         if not self.lista_canciones:
             return
@@ -152,10 +181,11 @@ class ReproductorMusical:
         else:
             pygame.mixer.music.unpause()
             self.reproduciendo = True
-
-    def parar(self):
-        pygame.mixer.music.stop()
-        self.reproduciendo = False
+    
+    def stop(self):
+        if self.lista_canciones:
+            pygame.mixer.music.play()
+            self.reproduciendo = True
 
     def siguiente(self):
         if not self.lista_canciones: return
@@ -169,7 +199,7 @@ class ReproductorMusical:
                     self.indice_actual = 0
                 else:
                     self.indice_actual = len(self.lista_canciones) - 1
-                    self.parar()
+                    self.stop()
                     return
         self.reproducir()
 
@@ -222,7 +252,7 @@ class ReproductorMusical:
                 m_tot, s_tot = divmod(int(duracion_total), 60)
                 self.label_tiempo.config(text=f"{m_act:02d}:{s_act:02d} / {m_tot:02d}:{s_tot:02d}")
                 
-                if tiempo_actual >= duracion_total - 1: # Margen de 1 segundo
+                if tiempo_actual >= duracion_total - 1:
                     self.siguiente()
 
         self.root.after(1000, self.actualizar_barra_progreso)
@@ -248,6 +278,26 @@ class ReproductorMusical:
             for info in self.lista_canciones:
                 texto_lista = f"{info['artista']} - {info['titulo']}"
                 self.listbox.insert(tk.END, texto_lista)
+    
+    def guardar_sesion_automatica(self):
+        try:
+            with open(self.archivo_auto_guardado, 'w', encoding='utf-8') as f:
+                json.dump(self.lista_canciones, f, indent=4)
+        except Exception as e:
+            print(f"No se pudo auto-guardar: {e}")
+
+    def cargar_sesion_automatica(self):
+        """Si existe el archivo de la sesión anterior, lo carga apenas abre el programa."""
+        if os.path.exists(self.archivo_auto_guardado):
+            try:
+                with open(self.archivo_auto_guardado, 'r', encoding='utf-8') as f:
+                    self.lista_canciones = json.load(f)
+                
+                self.listbox.delete(0, tk.END)
+                for info in self.lista_canciones:
+                    self.listbox.insert(tk.END, f"{info['artista']} - {info['titulo']}")
+            except:
+                pass
 
 if __name__ == "__main__":
     ventana = tk.Tk()
