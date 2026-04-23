@@ -192,12 +192,21 @@ class ReproductorMusical:
     def reproducir(self):
         if not self.lista_canciones:
             return
-            
+
+        if self.pausado and self.indice_actual == self.cancion_cargada_indice:
+            pygame.mixer.music.unpause()
+            self.reproduciendo = True
+            self.pausado = False
+            return
+
         cancion = self.lista_canciones[self.indice_actual]
         pygame.mixer.music.load(cancion["ruta"])
         pygame.mixer.music.play()
+
         self.reproduciendo = True
-        
+        self.pausado = False
+        self.cancion_cargada_indice = self.indice_actual
+
         self.label_titulo.config(text=f"Título: {cancion['titulo']}")
         self.label_artista.config(text=f"Artista: {cancion['artista']}")
         self.label_album.config(text=f"Álbum: {cancion['album']}")
@@ -211,29 +220,36 @@ class ReproductorMusical:
         if self.reproduciendo:
             pygame.mixer.music.pause()
             self.reproduciendo = False
-        else:
-            pygame.mixer.music.unpause()
-            self.reproduciendo = True
+            self.pausado = True
     
     def stop(self):
-        if self.lista_canciones:
-            pygame.mixer.music.play()
-            self.reproduciendo = True
+        pygame.mixer.music.stop()
+        self.reproduciendo = False
+        self.pausado = False
 
-    def siguiente(self):
+        self.barra_progreso["value"] = 0
+        self.label_tiempo.config(text="00:00 / 00:00")
+
+    def siguiente(self, automatico=False):
         if not self.lista_canciones: return
-        
-        if self.modo_aleatorio:
+
+        if automatico and self.modo_repetir:
+            pass 
+
+        elif self.modo_aleatorio:
             self.indice_actual = random.randint(0, len(self.lista_canciones) - 1)
+
         else:
             self.indice_actual += 1
+
             if self.indice_actual >= len(self.lista_canciones):
                 if self.modo_repetir:
-                    self.indice_actual = 0
+                    self.indice_actual = 0 
                 else:
                     self.indice_actual = len(self.lista_canciones) - 1
                     self.stop()
                     return
+                    
         self.reproducir()
 
     def anterior(self):
@@ -298,7 +314,7 @@ class ReproductorMusical:
                 self.label_tiempo.config(text=f"{m_act:02d}:{s_act:02d} / {m_tot:02d}:{s_tot:02d}")
                 
                 if tiempo_actual >= duracion_total - 1:
-                    self.siguiente()
+                    self.siguiente(automatico=True)
 
         self.root.after(1000, self.actualizar_barra_progreso)
 
