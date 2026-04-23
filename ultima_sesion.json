@@ -1,9 +1,128 @@
 [
     {
-        "ruta": "C:/Users/User/Desktop/prueba musica\\monument_music-glass-of-wine-143532 (1).mp3",
-        "titulo": "monument_music-glass-of-wine-143532 (1)",
-        "artista": "Desconocido",
-        "album": "Desconocido",
-        "duracion": 112.48325
+        "ruta": "musica\\01 - Ana Ng.flac",
+        "titulo": "Ana Ng",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 205.0090022675737
+    },
+    {
+        "ruta": "musica\\02 - Cowtown.flac",
+        "titulo": "Cowtown",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 146.05351473922903
+    },
+    {
+        "ruta": "musica\\03 - Lie Still, Little Bottle.flac",
+        "titulo": "Lie Still, Little Bottle",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 128.26702947845806
+    },
+    {
+        "ruta": "musica\\04 - Purple Toupee.flac",
+        "titulo": "Purple Toupee",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 162.0520634920635
+    },
+    {
+        "ruta": "musica\\05 - Cage & Aquarium.flac",
+        "titulo": "Cage & Aquarium",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 72.26049886621315
+    },
+    {
+        "ruta": "musica\\06 - Where Your Eyes Don't Go.flac",
+        "titulo": "Where Your Eyes Don't Go",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 186.2008163265306
+    },
+    {
+        "ruta": "musica\\07 - Piece of Dirt.flac",
+        "titulo": "Piece of Dirt",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 120.72054421768708
+    },
+    {
+        "ruta": "musica\\08 - Mr. Me.flac",
+        "titulo": "Mr. Me",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 117.05179138321995
+    },
+    {
+        "ruta": "musica\\09 - Pencil Rain.flac",
+        "titulo": "Pencil Rain",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 165.0009977324263
+    },
+    {
+        "ruta": "musica\\10 - The World's Address.flac",
+        "titulo": "The World's Address",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 150.00090702947847
+    },
+    {
+        "ruta": "musica\\11 - I've Got a Match.flac",
+        "titulo": "I've Got a Match",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 157.0597732426304
+    },
+    {
+        "ruta": "musica\\12 - Santa's Beard.flac",
+        "titulo": "Santa's Beard",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 117.05179138321995
+    },
+    {
+        "ruta": "musica\\13 - You'll Miss Me.flac",
+        "titulo": "You'll Miss Me",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 115.0548752834467
+    },
+    {
+        "ruta": "musica\\14 - They'll Need a Crane.flac",
+        "titulo": "They'll Need a Crane",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 155.06285714285715
+    },
+    {
+        "ruta": "musica\\15 - Shoehorn With Teeth.flac",
+        "titulo": "Shoehorn With Teeth",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 73.09641723356009
+    },
+    {
+        "ruta": "musica\\16 - Stand On Your Own Head.flac",
+        "titulo": "Stand On Your Own Head",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 78.06548752834468
+    },
+    {
+        "ruta": "musica\\17 - Snowball in Hell.flac",
+        "titulo": "Snowball in Hell",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 153.0078911564626
+    },
+    {
+        "ruta": "musica\\18 - Kiss Me, Son of God.flac",
+        "titulo": "Kiss Me, Son of God",
+        "artista": "They Might Be Giants",
+        "album": "Lincoln",
+        "duracion": 112.68643990929705
     }
 ]

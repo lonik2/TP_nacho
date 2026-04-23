@@ -6,6 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 import pygame
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
+from mutagen.flac import FLAC
 from PIL import Image, ImageTk
 import io
 
@@ -26,6 +27,8 @@ class ReproductorMusical:
         self.archivo_auto_guardado = "ultima_sesion.json"
 
         self.crear_interfaz()
+
+        self.cargar_carpeta_inicio("musica")
 
         self.cargar_sesion_automatica()
 
@@ -93,7 +96,7 @@ class ReproductorMusical:
         self.slider_volumen.pack(side="left")
     
     def agregar_archivos(self):
-        archivos = filedialog.askopenfilenames(filetypes=[("Archivos MP3", "*.mp3")])
+        archivos = filedialog.askopenfilenames(filetypes=[("Archivos MP3", "*.mp3", "*.flac")])
         if archivos:
             for ruta in archivos:
                 info = self.extraer_metadatos(ruta)
@@ -117,7 +120,7 @@ class ReproductorMusical:
         self.listbox.delete(0, tk.END)
         
         for archivo in os.listdir(carpeta):
-            if archivo.endswith(".mp3"):
+            if archivo.endswith(".mp3", ".flac"):
                 ruta_completa = os.path.join(carpeta, archivo)
                 info = self.extraer_metadatos(ruta_completa)
                 self.lista_canciones.append(info)
@@ -125,26 +128,56 @@ class ReproductorMusical:
                 self.listbox.insert(tk.END, texto_lista)
 
         self.guardar_sesion_automatica()
+    
+    def cargar_carpeta_inicio(self, nombre_carpeta):
+        if not os.path.exists(nombre_carpeta):
+            print(f"No se encontró la carpeta: {nombre_carpeta}")
+            return
+            
+        print(f"Cargando automáticamente la carpeta: {nombre_carpeta}")
+        self.lista_canciones.clear()
+        self.listbox.delete(0, tk.END)
+        
+        try:
+            for archivo in os.listdir(nombre_carpeta):
+                if archivo.lower().endswith((".mp3", ".flac")):
+                    ruta_completa = os.path.join(nombre_carpeta, archivo)
+                    info = self.extraer_metadatos(ruta_completa)
+                    self.lista_canciones.append(info)
+                    texto_lista = f"{info['artista']} - {info['titulo']}"
+                    self.listbox.insert(tk.END, texto_lista)
+            
+            self.guardar_sesion_automatica()
+            print("Carpeta cargada con éxito al iniciar.")
+        except Exception as e:
+            print(f"Ocurrió un error al cargar al inicio: {e}")
 
     def extraer_metadatos(self, ruta):
         info = {
             "ruta": ruta,
-            "titulo": os.path.basename(ruta).replace(".mp3", ""),
+            "titulo": os.path.splitext(os.path.basename(ruta))[0],
             "artista": "Desconocido",
             "album": "Desconocido",
             "duracion": 0
         }
         try:
-            audio = MP3(ruta, ID3=ID3)
-            info["duracion"] = audio.info.length
-            
-            if audio.tags:
-                if 'TIT2' in audio.tags:
-                    info["titulo"] = str(audio.tags['TIT2'])
-                if 'TPE1' in audio.tags:
-                    info["artista"] = str(audio.tags['TPE1'])
-                if 'TALB' in audio.tags:
-                    info["album"] = str(audio.tags['TALB'])
+            if ruta.lower().endswith(".flac"):
+                audio = FLAC(ruta)
+                info["duracion"] = audio.info.length
+                info["titulo"] = audio.get("title", [info["titulo"]])[0]
+                info["artista"] = audio.get("artist", ["Desconocido"])[0]
+                info["album"] = audio.get("album", ["Desconocido"])[0]
+                
+            elif ruta.lower().endswith(".mp3"):
+                audio = MP3(ruta, ID3=ID3)
+                info["duracion"] = audio.info.length
+                if audio.tags:
+                    if 'TIT2' in audio.tags:
+                        info["titulo"] = str(audio.tags['TIT2'])
+                    if 'TPE1' in audio.tags:
+                        info["artista"] = str(audio.tags['TPE1'])
+                    if 'TALB' in audio.tags:
+                        info["album"] = str(audio.tags['TALB'])
         except Exception as e:
             print(f"Error leyendo {ruta}: {e}")
             
@@ -211,18 +244,30 @@ class ReproductorMusical:
         self.reproducir()
     
     def mostrar_caratula(self, ruta):
+        imagen_data = None
         try:
-            audio = MP3(ruta, ID3=ID3)
-            for tag in audio.tags.values():
-                if isinstance(tag, APIC):
-                    imagen_data = tag.data
-                    img = Image.open(io.BytesIO(imagen_data))
-                    img = img.resize((150, 150), Image.Resampling.LANCZOS)
-                    self.img_tk = ImageTk.PhotoImage(img)
-                    self.label_caratula.config(image=self.img_tk, text="")
-                    return
-            self.label_caratula.config(image="", text="Sin Carátula", bg="gray")
-        except:
+            if ruta.lower().endswith(".flac"):
+                audio = FLAC(ruta)
+                if audio.pictures:
+                    imagen_data = audio.pictures[0].data
+            elif ruta.lower().endswith(".mp3"):
+                audio = MP3(ruta, ID3=ID3)
+                if audio.tags:
+                    for tag in audio.tags.values():
+                        if isinstance(tag, APIC):
+                            imagen_data = tag.data
+                            break
+
+            if imagen_data:
+                img = Image.open(io.BytesIO(imagen_data))
+                img = img.resize((150, 150), Image.Resampling.LANCZOS)
+                self.img_tk = ImageTk.PhotoImage(img)
+                self.label_caratula.config(image=self.img_tk, text="", width=150, height=150)
+            else:
+                self.label_caratula.config(image="", text="Sin Carátula", bg="gray")
+                
+        except Exception as e:
+            print(f"Error al cargar carátula: {e}")
             self.label_caratula.config(image="", text="Sin Carátula", bg="gray")
     
     def cambiar_volumen(self, valor):
