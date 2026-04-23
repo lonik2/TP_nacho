@@ -23,10 +23,15 @@ class ReproductorMusical:
         self.modo_aleatorio = False
         self.modo_repetir = False
         self.reproduciendo = False
-        
+        self.pausado = False
+        self.cancion_cargada_indice = -1
+        self.tiempo_offset = 0
+
         self.archivo_auto_guardado = "ultima_sesion.json"
 
         self.crear_interfaz()
+
+        self.barra_progreso.bind("<Button-1>", self.saltar_tiempo)
 
         self.cargar_carpeta_inicio("musica")
 
@@ -200,6 +205,7 @@ class ReproductorMusical:
             return
 
         cancion = self.lista_canciones[self.indice_actual]
+        self.tiempo_offset = 0
         pygame.mixer.music.load(cancion["ruta"])
         pygame.mixer.music.play()
 
@@ -301,7 +307,7 @@ class ReproductorMusical:
 
     def actualizar_barra_progreso(self):
         if pygame.mixer.music.get_busy() and self.reproduciendo:
-            tiempo_actual = pygame.mixer.music.get_pos() / 1000
+            tiempo_actual = (pygame.mixer.music.get_pos() / 1000) + self.tiempo_offset
             cancion = self.lista_canciones[self.indice_actual]
             duracion_total = cancion["duracion"]
             
@@ -317,6 +323,24 @@ class ReproductorMusical:
                     self.siguiente(automatico=True)
 
         self.root.after(1000, self.actualizar_barra_progreso)
+    
+    def saltar_tiempo(self, event):
+        if not self.lista_canciones or not self.reproduciendo:
+            return
+        
+        ancho_barra = self.barra_progreso.winfo_width()
+        clic_x = event.x
+
+        porcentaje = clic_x / ancho_barra
+
+        cancion = self.lista_canciones[self.indice_actual]
+        duracion_total = cancion["duracion"]
+        nuevo_tiempo = porcentaje * duracion_total
+
+        pygame.mixer.music.play(start=nuevo_tiempo)
+
+        self.tiempo_offset = nuevo_tiempo
+        self.pausado = False
 
     def guardar_playlist(self):
         if not self.lista_canciones:
